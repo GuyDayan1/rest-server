@@ -44,8 +44,8 @@ public class MainController {
 //    }
 
 
-    @RequestMapping(value = "/update-match", method = RequestMethod.GET)
-    public BaseResponse updateMatchScore(int userId , int matchId , int team1Goals , int team2Goals , String token){
+    @RequestMapping(value = "/update-match", method = RequestMethod.POST)
+    public BaseResponse updateMatchScore(int matchId , int team1Goals , int team2Goals , int userId , String token){
         final int MATCH_ALREADY_ENDED_ERROR=77;
         BaseResponse response = null;
         if (userHasPermissions(userId,token)){
@@ -64,6 +64,8 @@ public class MainController {
         }
         return response;
     }
+
+
 
 
     @RequestMapping(value = "/get-teams", method = RequestMethod.GET)
@@ -122,11 +124,13 @@ public class MainController {
 
   // c
     @RequestMapping(value = "/get-table", method = RequestMethod.GET)
-    public List<TeamStats> getTable(int userId , String token){
+    public BaseResponse getTable(){
+        BaseResponse response;
        List<Match> endedMatches = persist.getEndedMatches();
        List<Team> teams = persist.getAllTeams();
        List<TeamStats> teamStats = utils.calculateTable(teams,endedMatches);
-       return teamStats;
+       response = new GetTableResponse(true,null,teamStats);
+       return response;
     }
 /// /get-live-table(int userId , String token)
     @RequestMapping(value = "/get-live-table", method = RequestMethod.GET)

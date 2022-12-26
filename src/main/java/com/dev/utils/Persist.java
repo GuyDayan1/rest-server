@@ -13,9 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class Persist {
@@ -68,7 +66,6 @@ public class Persist {
         if (user.getToken().equals(token)) hasPermissions = true;
         return hasPermissions;
 
-
     }
 
 
@@ -80,6 +77,7 @@ public class Persist {
                     "Manchester-City", "Arsenal", "Maccabi-Haifa", "Hapoel-Ashkelon",
                     "Tottenham", "Bayern-Munich", "Inter", "Real-Madrid", "Barcelona",
                     "PSV", "Juventus", "Milan-AC");
+
             for (String teamName : teamNames) {
                 sessionFactory.openSession().save(new Team(teamName));
             }
@@ -96,12 +94,12 @@ public class Persist {
         List teamList = sessionFactory.openSession().
                 createQuery("FROM Team WHERE id IN :teamsId").
                 setParameterList("teamsId", teamsId).list();
-        Object currentUserId = sessionFactory.openSession()
+        User currentUser = (User) sessionFactory.openSession()
                 .createQuery("FROM User WHERE id=:userId ").
                 setParameter("userId", userId).getSingleResult();
-        Match match = new Match((Team) teamList.get(0), (Team) teamList.get(1), (Integer) currentUserId);
+        Match match = new Match((Team) teamList.get(0), (Team) teamList.get(1),currentUser.getId());
         sessionFactory.openSession().save(match);
-        updateUserMatchesMap(match.getUserId(),match.getId());
+        //updateUserMatchesMap(match.getUserId(),match.getId());
         return match;
     }
 
