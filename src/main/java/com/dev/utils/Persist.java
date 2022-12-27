@@ -4,6 +4,7 @@ package com.dev.utils;
 import com.dev.objects.Match;
 import com.dev.objects.Team;
 import com.dev.objects.User;
+import com.dev.objects.UserToMatchMap;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -99,10 +100,14 @@ public class Persist {
                 setParameter("userId", userId).getSingleResult();
         Match match = new Match((Team) teamList.get(0), (Team) teamList.get(1),currentUser.getId());
         sessionFactory.openSession().save(match);
-        //updateUserMatchesMap(match.getUserId(),match.getId());
+        updateUserMatchesMap(match.getUserId(),match.getId());
         return match;
     }
 
+    public void updateUserMatchesMap(int userId , int matchId){
+        UserToMatchMap userToMatchMap = new UserToMatchMap(userId, matchId);
+        sessionFactory.openSession().save(userToMatchMap);
+    }
 
     public Match endMatch(int matchId) {
         Session session = sessionFactory.openSession();
