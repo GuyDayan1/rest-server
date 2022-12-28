@@ -14,7 +14,7 @@ public class Utils {
     public boolean validateUsername(String username) {
         boolean valid = false;
         if (username != null) {
-            if (username.contains("@")) {
+            if (username.contains("@") && username.length() >=5) {
                 valid = true;
             }
         }

@@ -120,6 +120,16 @@ public class Persist {
         return match;
     }
 
+    public boolean anyTeamPlayingRightNow(int team1Id , int team2Id){
+        List list = sessionFactory.openSession().createQuery("FROM Match WHERE " +
+                "(team1.id=:team1Id OR team1.id=:team2Id) OR " +
+                "(team2.id=:team1Id OR team2.id=:team2Id)" +
+                " AND live=TRUE").setParameter("team1Id", team1Id).setParameter("team2Id" , team2Id).list();
+
+        return list.size() > 0;
+
+    }
+
     public boolean isMatchBelongToUser(int userId, int matchId) {
         List userToMatchList = sessionFactory.openSession().createQuery
                         ("FROM UserToMatchMap WHERE userId=:userId AND matchId = :matchId")

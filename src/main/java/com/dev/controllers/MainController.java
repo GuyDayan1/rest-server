@@ -69,23 +69,25 @@ public class MainController {
 
 
     @RequestMapping(value = "/get-teams", method = RequestMethod.GET)
-    public BaseResponse getTeams(int userId , String token){
+    public BaseResponse getTeams(){
         BaseResponse response;
-        if (userHasPermissions(userId,token)){
-            List<Team> teams = persist.getAllTeams();
-            response = new GetTeamsResponse(true,null,teams);
-        }else {
-            response = new BaseResponse(false,ErrorCodes.PERMISSION_ERROR_CODE);
-        }
+        List<Team> teams = persist.getAllTeams();
+        response = new GetTeamsResponse(true,null,teams);
         return response;
     }
 
     @RequestMapping(value = "/add-new-live-match", method = RequestMethod.POST)
     public BaseResponse addNewLiveMatch(int team1Id , int team2Id , int userId , String token){
+        final int TEAM_PLAYING_RIGHT_NOW =81;
         BaseResponse response;
         if (userHasPermissions(userId,token)){
-            Match newMatch = persist.addNewMatch(team1Id , team2Id , userId);
-            response = new NewLiveMatchResponse(true,null , newMatch);
+            if (!persist.anyTeamPlayingRightNow(team1Id,team2Id)){
+                Match newMatch = persist.addNewMatch(team1Id , team2Id , userId);
+                response = new NewLiveMatchResponse(true,null , newMatch);
+            }else {
+                response = new BaseResponse(false,TEAM_PLAYING_RIGHT_NOW);
+            }
+
         }else {
             response = new BaseResponse(false,ErrorCodes.PERMISSION_ERROR_CODE);
         }
@@ -97,11 +99,11 @@ public class MainController {
     public BaseResponse endMatch(int matchId,int userId , String token){
         BaseResponse response = null;
         if (userHasPermissions(userId,token)){
-            Match currentEndMatch =  persist.endMatch(matchId);
-            if (!currentEndMatch.isLive()){
-                response = new EndMatchResponse(true,null);
+            if (persist.isMatchBelongToUser(matchId,userId)){
+                Match currentEndMatch =  persist.endMatch(matchId);
+                response = new EndMatchResponse(true,null,currentEndMatch);
             }else {
-                response = new EndMatchResponse(false , 100);
+                response = new BaseResponse(false , 100);
             }
         }
         return response;
