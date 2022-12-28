@@ -120,14 +120,16 @@ public class Persist {
         return match;
     }
 
-    public boolean anyTeamPlayingRightNow(int team1Id , int team2Id){
-        List list = sessionFactory.openSession().createQuery("FROM Match WHERE " +
-                "(team1.id=:team1Id OR team1.id=:team2Id) OR " +
-                "(team2.id=:team1Id OR team2.id=:team2Id)" +
-                " AND live=TRUE").setParameter("team1Id", team1Id).setParameter("team2Id" , team2Id).list();
-
-        return list.size() > 0;
-
+    public boolean isTeamsOnOtherLiveMatch(int team1Id , int team2Id){
+        List<Integer> teamsId = new ArrayList<>();
+        teamsId.add(team1Id);
+        teamsId.add(team2Id);
+        List list = sessionFactory.openSession().createQuery("FROM Match WHERE team1.id IN(:teamsId) AND live=TRUE")
+                .setParameterList("teamsId", teamsId).list();
+        List list2 = sessionFactory.openSession().createQuery("FROM Match WHERE team2.id IN(:teamsId) AND live=TRUE")
+                .setParameterList("teamsId", teamsId).list();
+        System.out.println(list2.size()+ list.size());
+        return list.size() + list2.size() > 0;
     }
 
     public boolean isMatchBelongToUser(int userId, int matchId) {

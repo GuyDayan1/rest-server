@@ -81,7 +81,7 @@ public class MainController {
         final int TEAM_PLAYING_RIGHT_NOW =81;
         BaseResponse response;
         if (userHasPermissions(userId,token)){
-            if (!persist.anyTeamPlayingRightNow(team1Id,team2Id)){
+            if (!persist.isTeamsOnOtherLiveMatch(team1Id,team2Id)){
                 Match newMatch = persist.addNewMatch(team1Id , team2Id , userId);
                 response = new NewLiveMatchResponse(true,null , newMatch);
             }else {
@@ -96,10 +96,10 @@ public class MainController {
 
 /// /end-match(int userId , String token)
     @RequestMapping(value = "/end-match", method = RequestMethod.POST)
-    public BaseResponse endMatch(int matchId,int userId , String token){
+    public BaseResponse endMatch(int matchId, int userId , String token){
         BaseResponse response = null;
         if (userHasPermissions(userId,token)){
-            if (persist.isMatchBelongToUser(matchId,userId)){
+            if (persist.isMatchBelongToUser(userId,matchId)){
                 Match currentEndMatch =  persist.endMatch(matchId);
                 response = new EndMatchResponse(true,null,currentEndMatch);
             }else {
