@@ -124,12 +124,11 @@ public class Persist {
         List<Integer> teamsId = new ArrayList<>();
         teamsId.add(team1Id);
         teamsId.add(team2Id);
-        List list = sessionFactory.openSession().createQuery("FROM Match WHERE team1.id IN(:teamsId) AND live=TRUE")
-                .setParameterList("teamsId", teamsId).list();
-        List list2 = sessionFactory.openSession().createQuery("FROM Match WHERE team2.id IN(:teamsId) AND live=TRUE")
-                .setParameterList("teamsId", teamsId).list();
-        System.out.println(list2.size()+ list.size());
-        return list.size() + list2.size() > 0;
+        try (Session session = sessionFactory.openSession()) {
+            List<Match> matches = session.createQuery("FROM Match WHERE (team1.id IN(:teamsId) OR team2.id IN(:teamsId)) AND live=TRUE")
+                    .setParameterList("teamsId", teamsId).list();
+            return !matches.isEmpty();
+        }
     }
 
     public boolean isMatchBelongToUser(int userId, int matchId) {
